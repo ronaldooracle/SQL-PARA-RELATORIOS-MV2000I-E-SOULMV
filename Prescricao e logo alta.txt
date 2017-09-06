@@ -1,0 +1,24 @@
+--alta medica 
+
+select atendime.cd_atendimento,
+       (round((atendime.hr_alta_medica - pre_med.hr_pre_med) * 86400 / 3600,
+              0)) Calc_Esp,
+       pre_med.hr_pre_med,
+       atendime.hr_alta_medica,
+       decode(atendime.tp_atendimento,
+              'I',
+              'internação',
+              'A',
+              'Ambulatorio',
+              'E',
+              'Externo') tp_atendimento,
+       prestador.nm_prestador,
+       prestador.ds_codigo_conselho as conselho
+  from atendime, pre_med, prestador
+ where pre_med.cd_atendimento = atendime.cd_atendimento
+   and trunc(atendime.hr_atendimento) >= trunc(sysdate - 30)
+   and (round((atendime.hr_alta_medica - pre_med.hr_pre_med) * 86400 / 3600,
+              0)) <= 4
+   and atendime.tp_atendimento not in ('U')
+   and pre_med.cd_prestador = prestador.cd_prestador
+ order by 2 desc
